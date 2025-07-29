@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distribuidora Costa Rica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background-color: #000;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      max-width: 60px;
+      margin-right: 1rem;
+    }
+    .titulo {
+      flex-grow: 1;
+    }
+    .titulo h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .titulo p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    main {
+      padding: 1rem;
+    }
+    h2 {
+      margin-top: 2rem;
+    }
+    .produtos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .card img {
+      width: 100%;
+      max-height: 100px;
+      object-fit: contain;
+      margin-bottom: 0.5rem;
+    }
+    .preco {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .quantidade {
+      width: 50px;
+      margin-top: 5px;
+    }
+    .btn {
+      display: block;
+      margin-top: 1rem;
+      background-color: green;
+      color: white;
+      padding: 1rem;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 8px;
+    }
+    .carrinho {
+      margin-top: 2rem;
+      background-color: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .carrinho h3 {
+      margin-top: 0;
+    }
+    .carrinho ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.imgur.com/sYpSrxB.png" alt="Logo Distribuidora Costa Rica" class="logo">
+    <div class="titulo">
+      <h1>Distribuidora Costa Rica</h1>
+      <p>Faça seu pedido e receba pelo WhatsApp!</p>
+    </div>
+  </header>
+  <main>
+    <form id="pedidoForm">
+      <h2>Produtos</h2>
+      <div class="produtos" id="listaProdutos"></div>
+      <div class="carrinho" id="carrinho">
+        <h3>Itens Selecionados</h3>
+        <ul id="listaCarrinho"></ul>
+        <p id="totalPedido"><strong>Total:</strong> R$0,00</p>
+        <button type="button" class="btn" onclick="enviarPedido()">Finalizar Pedido no WhatsApp</button>
+      </div>
+    </form>
+  </main>
+  <script>
+    const produtos = [
+      { nome: 'Skol - Unidade', preco: 3.5, img: 'https://www.ambev.com.br/images/uploads/marcas/Skol_lata_269ml_2022-12-13-104601_iurp.png' },
+      { nome: 'Skol - Pacote', preco: 45, img: 'https://down-br.img.susercontent.com/file/sg-11134201-7rbku-ll20ge3d0h9l39' },
+      { nome: 'Itaipava - Unidade', preco: 3, img: 'https://d2r9epyceweg5n.cloudfront.net/stores/002/001/066/products/itaipava-269ml1-95492e9c1f7b349d3016891956948222-640-0.png' },
+      { nome: 'Itaipava - Pacote', preco: 36, img: 'https://superprix.vtexassets.com/arquivos/ids/181363/Cerveja-Itaipava-Pilsen-Lata-350ml-12-Unidades.jpg?v=637660127377000000' },
+      { nome: 'Stella Artois - Unidade', preco: 7, img: 'https://adega.supernosso.com/image/1661925286_700x700.png' },
+      { nome: 'Stella Artois - Pacote', preco: 42, img: 'https://emporiobebidasonline.com.br/cdn/shop/products/stella-artois-pack-6-und-275ml_300x.png?v=1626467497' },
+      { nome: 'Budweiser - Unidade', preco: 7, img: 'https://adega.vinhobr.com.br/image/adega.vinhobr.com.br/budweiser-long-neck-355ml_44825.png' },
+      { nome: 'Budweiser - Pacote', preco: 42, img: 'https://emporiodacerveja.vtexassets.com/arquivos/ids/165719/budweiser-pack-6-und-355ml.png?v=638314474717930000' },
+      { nome: 'Coronita - Unidade', preco: 7.5, img: 'https://delivery.choppbrahmaexpress.com.br/media/catalog/product/cache/2cc2cf862b2fc896602c71a06e704756/c/o/corona.png' },
+      { nome: 'Coronita - Pacote', preco: 42, img: 'https://cdn.awsli.com.br/600x700/1790/1790440/produto/142748885/corona-kit-6-long-neck-355ml-pbpy84bnr4.png' },
+      { nome: 'Bally Tradicional', preco: 20, img: 'https://d2r9epyceweg5n.cloudfront.net/stores/001/159/393/products/energ-baly-tradicional1-54b1cfcf84360cb7fe16648124606109-1024-1024.png' },
+      { nome: 'Bally Melancia', preco: 20, img: 'https://http2.mlstatic.com/D_NQ_NP_974413-MLB51777317580_092022-O.webp' },
+      { nome: '51 Ice Balada - Unidade', preco: 6, img: 'https://i.imgur.com/nRe92ue.png' },
+      { nome: '51 Ice Balada - Pacote', preco: 36, img: 'https://i.imgur.com/RX9nAHk.png' }
+    ];
+
+    const listaProdutos = document.getElementById('listaProdutos');
+    const listaCarrinho = document.getElementById('listaCarrinho');
+    const totalPedido = document.getElementById('totalPedido');
+
+    produtos.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.nome}">
+        <div>${p.nome}<br><span class="preco">R$${p.preco.toFixed(2)}</span></div>
+        <input type="number" min="0" value="0" class="quantidade" data-index="${i}">
+      `;
+      listaProdutos.appendChild(div);
+    });
+
+    listaProdutos.addEventListener('input', atualizarCarrinho);
+
+    function atualizarCarrinho() {
+      listaCarrinho.innerHTML = '';
+      let total = 0;
+      document.querySelectorAll('.quantidade').forEach(input => {
+        const qtd = parseInt(input.value);
+        if (qtd > 0) {
+          const prod = produtos[input.dataset.index];
+          const subtotal = qtd * prod.preco;
+          total += subtotal;
+          const li = document.createElement('li');
+          li.textContent = `${prod.nome} x${qtd} - R$${subtotal.toFixed(2)}`;
+          listaCarrinho.appendChild(li);
+        }
+      });
+      totalPedido.innerHTML = `<strong>Total:</strong> R$${total.toFixed(2)}`;
+    }
+
+    function enviarPedido() {
+      let mensagem = "Olá, quero fazer um pedido:%0A";
+      let total = 0;
+      let temItem = false;
+
+      document.querySelectorAll('.quantidade').forEach(input => {
+        const qtd = parseInt(input.value);
+        if (qtd > 0) {
+          const prod = produtos[input.dataset.index];
+          const subtotal = qtd * prod.preco;
+          total += subtotal;
+          mensagem += `- ${prod.nome} x${qtd} - R$${subtotal.toFixed(2)}%0A`;
+          temItem = true;
+        }
+      });
+
+      if (!temItem) {
+        alert("Selecione pelo menos um produto.");
+        return;
+      }
+
+      mensagem += `%0ATotal: R$${total.toFixed(2)}`;
+      const numero = "5591991777650";
+      const link = `https://wa.me/${numero}?text=${mensagem}`;
+      window.open(link, '_blank');
+    }
+  </script>
+</body>
+</html>
